@@ -4,6 +4,8 @@ Attach an iOS 26 scroll edge effect to a React Native scroll view, shaped by you
 
 iOS only. Everywhere else the component is a plain view holding your `fallback` and children.
 
+<img src="https://raw.githubusercontent.com/strollerapp/react-native-scroll-edge-effect/main/docs/demo.gif" width="320" alt="A list scrolling under a pinned bar, blurring at the top edge" />
+
 > **Using Expo?** Use [`@bsky.app/expo-scroll-edge-effect`](https://github.com/bluesky-social/expo-scroll-edge-effect) instead. It is the original, it is maintained by the Bluesky team, and it supports all four edges and every `UIScrollEdgeEffect` style. This package is a minimal alternative for bare React Native projects without `expo-modules-core`: top and bottom edges, the `soft` style, no runtime dependencies.
 
 ## Installation
