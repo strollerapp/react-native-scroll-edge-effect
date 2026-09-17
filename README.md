@@ -4,9 +4,12 @@ Attach an iOS 26 scroll edge effect to a React Native scroll view, shaped by you
 
 iOS only. Everywhere else the component is a plain view holding your `fallback` and children.
 
-<img src="https://raw.githubusercontent.com/strollerapp/react-native-scroll-edge-effect/main/docs/demo.gif" width="320" alt="A list scrolling under a pinned bar, blurring at the top edge" />
+<p>
+  <img src="https://raw.githubusercontent.com/strollerapp/react-native-scroll-edge-effect/main/docs/soft.gif" width="320" alt="A list scrolling under a pinned bar with the soft edge effect" />
+  <img src="https://raw.githubusercontent.com/strollerapp/react-native-scroll-edge-effect/main/docs/hard.gif" width="320" alt="A list scrolling under a pinned bar with the hard edge effect" />
+</p>
 
-> **Using Expo?** Use [`@bsky.app/expo-scroll-edge-effect`](https://github.com/bluesky-social/expo-scroll-edge-effect) instead. It is the original, it is maintained by the Bluesky team, and it supports all four edges and every `UIScrollEdgeEffect` style. This package is a minimal alternative for bare React Native projects without `expo-modules-core`: top and bottom edges, the `soft` style, no runtime dependencies.
+> **Using Expo?** Use [`@bsky.app/expo-scroll-edge-effect`](https://github.com/bluesky-social/expo-scroll-edge-effect) instead. It is the original, it is maintained by the Bluesky team, and it supports all four edges and every `UIScrollEdgeEffect` style. This package is a minimal alternative for bare React Native projects without `expo-modules-core`: top and bottom edges, no runtime dependencies.
 
 ## Installation
 
@@ -64,14 +67,14 @@ export default function App() {
 
 ### `ScrollEdgeEffectView`
 
-| Prop                    | Type                   | Description                                                                                                                              |
-| ----------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `edge`                  | `'top' \| 'bottom'`    | Required. Which scroll view edge to shape. Only one view can own a given scroll view and edge; a second one is refused and renders bare. |
-| `height`                | `number`               | Required. Height of the bar and of the blurred region. Content in the bar is not required.                                               |
-| `children`              | `ReactNode`            | Bar content.                                                                                                                             |
-| `fallback`              | `ReactNode`            | Rendered behind `children` where the native effect is unavailable.                                                                       |
-| `shouldAdaptToBackdrop` | `boolean`              | Report the container's `userInterfaceStyle` through `useScrollEdgeBackdropColorScheme`. Defaults to `false`.                             |
-| `style`                 | `StyleProp<ViewStyle>` | Merged over the absolute positioning the component applies.                                                                              |
+| Prop          | Type                              | Description                                                                                                                              |
+| ------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `edge`        | `'top' \| 'bottom'`               | Required. Which scroll view edge to shape. Only one view can own a given scroll view and edge; a second one is refused and renders bare. |
+| `height`      | `number`                          | Required. Height of the bar and of the blurred region. Content in the bar is not required.                                               |
+| `effectStyle` | `'automatic' \| 'soft' \| 'hard'` | Edge effect style. Defaults to `'automatic'`.                                                                                            |
+| `children`    | `ReactNode`                       | Bar content.                                                                                                                             |
+| `fallback`    | `ReactNode`                       | Rendered behind `children` where the native effect is unavailable.                                                                       |
+| `style`       | `StyleProp<ViewStyle>`            | Merged over the absolute positioning the component applies.                                                                              |
 
 ### `ScrollEdgeEffectProvider` / `withScrollEdgeEffectProvider`
 
@@ -81,12 +84,6 @@ Shares the scroll view handle. `useScrollEdgeEffectRef` throws outside a provide
 
 A ref callback for the scroll view. A `FlatList`, `SectionList` or any view containing a scroll
 view works. The first scroll view found underneath is used.
-
-### `useScrollEdgeBackdropColorScheme()`
-
-`'light' | 'dark'` while the container's appearance differs from the device colour scheme,
-otherwise `null`. Use it to recolour bar content that would otherwise clash with what scrolls
-under it. Only reports under a `ScrollEdgeEffectView` with `shouldAdaptToBackdrop`.
 
 ### `isScrollEdgeEffectSupported`
 
