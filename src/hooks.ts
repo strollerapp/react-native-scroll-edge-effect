@@ -1,14 +1,6 @@
 import { useContext } from 'react';
 
-import {
-  ScrollEdgeBackdropContext,
-  ScrollEdgeEffectContext,
-  ScrollEdgeEffectRefContext,
-} from './context';
-
-export function useScrollEdgeBackdropColorScheme() {
-  return useContext(ScrollEdgeBackdropContext);
-}
+import { ScrollEdgeEffectContext, ScrollEdgeEffectRefContext } from './context';
 
 export function useScrollEdgeEffectRef() {
   const ref = useContext(ScrollEdgeEffectRefContext);

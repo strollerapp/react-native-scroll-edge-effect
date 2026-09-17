@@ -8,29 +8,21 @@ import type {
 
 export type ScrollEdge = 'top' | 'bottom';
 
-export type ScrollEdgeColorScheme = 'light' | 'dark';
-
-export type ScrollEdgeAppearance = {
-  colorScheme: ScrollEdgeColorScheme;
-};
-
-export type ScrollEdgeAppearanceEvent = {
-  nativeEvent: ScrollEdgeAppearance;
-};
+export type ScrollEdgeEffectStyle = 'automatic' | 'soft' | 'hard';
 
 export type ScrollEdgeEffectViewProps = {
   children?: ReactNode;
   edge: ScrollEdge;
+  effectStyle?: ScrollEdgeEffectStyle;
   height: number;
   fallback?: ReactNode;
-  shouldAdaptToBackdrop?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
 export type NativeScrollEdgeEffectViewProps = ViewProps & {
   scrollViewTag: number | null;
   edge: ScrollEdge;
-  onAppearanceChange?: (event: ScrollEdgeAppearanceEvent) => void;
+  effectStyle: ScrollEdgeEffectStyle;
 };
 
 export type ScrollEdgeEffectProviderProps = {

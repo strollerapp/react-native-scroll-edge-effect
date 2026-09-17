@@ -4,6 +4,6 @@
 
 RCT_EXPORT_VIEW_PROPERTY(scrollViewTag, NSNumber)
 RCT_EXPORT_VIEW_PROPERTY(edge, NSString)
-RCT_EXPORT_VIEW_PROPERTY(onAppearanceChange, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(effectStyle, NSString)
 
 @end

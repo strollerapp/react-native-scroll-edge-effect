@@ -15,6 +15,12 @@ private enum ScrollEdge: String {
   }
 }
 
+private enum ScrollEdgeEffectStyleName: String {
+  case automatic
+  case soft
+  case hard
+}
+
 @objc(ScrollEdgeEffectView)
 final class ScrollEdgeEffectView: RCTView {
   private static let maxResolveAttempts = 30
@@ -36,8 +42,6 @@ final class ScrollEdgeEffectView: RCTView {
   private var registeredInteractionKey: InteractionKey?
   private var hasResolvedTarget = false
   private var hasReportedContention = false
-  private var traitObserverRegistration: NSObjectProtocol?
-  private var lastReportedColorScheme: String?
   private var resolveAttempts = 0
   private var attachedTargetViewTag: Int?
   private var attachedEdge: ScrollEdge?
@@ -77,7 +81,15 @@ final class ScrollEdgeEffectView: RCTView {
     }
   }
 
-  @objc var onAppearanceChange: RCTDirectEventBlock?
+  @objc var effectStyle: NSString = "automatic" {
+    didSet {
+      if effectStyle == oldValue {
+        return
+      }
+
+      updateEdgeEffectStyle()
+    }
+  }
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
@@ -211,9 +223,8 @@ final class ScrollEdgeEffectView: RCTView {
     )
     registeredInteractionKey = interactionKey
     ensureShapeElement()
-    applySoftEdgeEffectStyle(to: scrollView, edge: requestedEdge)
+    applyEdgeEffectStyle(to: scrollView, edge: requestedEdge)
     addScrollEdgeContainerInteraction(for: scrollView, edge: requestedEdge)
-    registerTraitObserverIfNeeded()
   }
 
   private func detach() {
@@ -221,7 +232,6 @@ final class ScrollEdgeEffectView: RCTView {
     restorePreviousEdgeEffectStyle()
     removeScrollEdgeContainerInteraction()
     removeShapeElement()
-    unregisterTraitObserver()
     releaseInteractionKey()
     forgetAttachment()
   }
@@ -285,78 +295,6 @@ final class ScrollEdgeEffectView: RCTView {
     #endif
   }
 
-  private func registerTraitObserverIfNeeded() {
-    #if compiler(>=6.2)
-    guard #available(iOS 26.0, *) else {
-      return
-    }
-
-    emitAppearanceChange(force: true)
-
-    if traitObserverRegistration != nil {
-      return
-    }
-
-    traitObserverRegistration = registerForTraitChanges([UITraitUserInterfaceStyle.self]) {
-      (view: ScrollEdgeEffectView, _: UITraitCollection) in
-      view.emitAppearanceChange(force: false)
-    }
-    #endif
-  }
-
-  private func unregisterTraitObserver() {
-    #if compiler(>=6.2)
-    guard #available(iOS 26.0, *),
-      let registration = traitObserverRegistration as? UITraitChangeRegistration
-    else {
-      return
-    }
-
-    traitObserverRegistration = nil
-    unregisterForTraitChanges(registration)
-    #endif
-  }
-
-  private func emitAppearanceChange(force: Bool) {
-    guard let colorScheme = colorSchemeName(traitCollection.userInterfaceStyle)
-    else {
-      return
-    }
-
-    if !force, colorScheme == lastReportedColorScheme {
-      return
-    }
-
-    lastReportedColorScheme = colorScheme
-
-    logAppearanceChange(colorScheme)
-
-    onAppearanceChange?([
-      "colorScheme": colorScheme
-    ])
-  }
-
-  private func colorSchemeName(_ style: UIUserInterfaceStyle) -> String? {
-    switch style {
-    case .light:
-      return "light"
-    case .dark:
-      return "dark"
-    default:
-      return nil
-    }
-  }
-
-  private func logAppearanceChange(_ colorScheme: String) {
-    #if DEBUG
-      NSLog(
-        "%@",
-        "[ScrollEdgeEffect] colorScheme=\(colorScheme)"
-          + " edge=\(requestedEdge.rawValue)"
-      )
-    #endif
-  }
-
   private func scheduleRetry() {
     if retryWorkItem != nil {
       return
@@ -407,7 +345,7 @@ final class ScrollEdgeEffectView: RCTView {
     attachedScrollView = nil
   }
 
-  private func applySoftEdgeEffectStyle(to scrollView: UIScrollView, edge: ScrollEdge) {
+  private func applyEdgeEffectStyle(to scrollView: UIScrollView, edge: ScrollEdge) {
     #if compiler(>=6.2)
     guard #available(iOS 26.0, *) else {
       return
@@ -415,11 +353,24 @@ final class ScrollEdgeEffectView: RCTView {
 
     previousEdgeEffectStyle = edgeEffectStyle(from: scrollView, edge: edge)
 
-    let appliedStyle = UIScrollEdgeEffect.Style.soft
+    applyRequestedEdgeEffectStyle(to: scrollView, edge: edge)
+    #endif
+  }
 
-    setEdgeEffectStyle(appliedStyle, on: scrollView, edge: edge)
+  private func updateEdgeEffectStyle() {
+    #if compiler(>=6.2)
+    guard #available(iOS 26.0, *) else {
+      return
+    }
 
-    appliedEdgeEffectStyle = appliedStyle
+    guard isCurrentAttachmentValid(),
+      let attachedScrollView,
+      let attachedEdge
+    else {
+      return
+    }
+
+    applyRequestedEdgeEffectStyle(to: attachedScrollView, edge: attachedEdge)
     #endif
   }
 
@@ -487,6 +438,29 @@ final class ScrollEdgeEffectView: RCTView {
   }
 
   #if compiler(>=6.2)
+  @available(iOS 26.0, *)
+  private var requestedEdgeEffectStyle: UIScrollEdgeEffect.Style {
+    let styleName = ScrollEdgeEffectStyleName(rawValue: effectStyle as String) ?? .automatic
+
+    switch styleName {
+    case .automatic:
+      return .automatic
+    case .soft:
+      return .soft
+    case .hard:
+      return .hard
+    }
+  }
+
+  @available(iOS 26.0, *)
+  private func applyRequestedEdgeEffectStyle(to scrollView: UIScrollView, edge: ScrollEdge) {
+    let appliedStyle = requestedEdgeEffectStyle
+
+    setEdgeEffectStyle(appliedStyle, on: scrollView, edge: edge)
+
+    appliedEdgeEffectStyle = appliedStyle
+  }
+
   @available(iOS 26.0, *)
   private func edgeEffectStyle(
     from scrollView: UIScrollView,
