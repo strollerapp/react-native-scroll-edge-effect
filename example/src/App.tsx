@@ -1,4 +1,5 @@
 import {
+  Image,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -13,22 +14,17 @@ import {
 import {
   ScrollEdgeEffectProvider,
   ScrollEdgeEffectView,
-  useScrollEdgeBackdropColorScheme,
   useScrollEdgeEffectRef,
 } from '@strollerapp/react-native-scroll-edge-effect';
 
-const BAR_CONTENT_HEIGHT = 56;
+const BAR_CONTENT_HEIGHT = 88;
 
 const ITEMS = Array.from({ length: 40 }, (_, index) => ({
   label: `Item ${index + 1}`,
-  isDark: Math.floor(index / 4) % 2 === 1,
 }));
 
 function BarContent({ topInset }: { topInset: number }) {
-  const deviceColorScheme = useColorScheme();
-  const backdropColorScheme = useScrollEdgeBackdropColorScheme();
-
-  const colorScheme = backdropColorScheme ?? deviceColorScheme;
+  const colorScheme = useColorScheme();
 
   const color = colorScheme === 'dark' ? '#ffffff' : '#000000';
 
@@ -38,7 +34,14 @@ function BarContent({ topInset }: { topInset: number }) {
         barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
       />
 
-      <Text style={[styles.barTitle, { color }]}>Scroll edge effect</Text>
+      <View style={styles.barTitleRow}>
+        <Image
+          source={require('./assets/star.png')}
+          style={[styles.barIcon, { tintColor: color }]}
+        />
+
+        <Text style={[styles.barTitle, { color }]}>Scroll edge effect</Text>
+      </View>
     </View>
   );
 }
@@ -57,13 +60,8 @@ function Screen() {
         contentInsetAdjustmentBehavior="never"
       >
         {ITEMS.map((item) => (
-          <View
-            key={item.label}
-            style={[styles.row, item.isDark && styles.rowDark]}
-          >
-            <Text style={[styles.rowLabel, item.isDark && styles.rowLabelDark]}>
-              {item.label}
-            </Text>
+          <View key={item.label} style={styles.row}>
+            <Text style={styles.rowLabel}>{item.label}</Text>
           </View>
         ))}
       </ScrollView>
@@ -71,7 +69,7 @@ function Screen() {
       <ScrollEdgeEffectView
         edge="top"
         height={barHeight}
-        shouldAdaptToBackdrop
+        effectStyle="soft"
         fallback={<View style={styles.barFallback} />}
       >
         <BarContent topInset={insets.top} />
@@ -93,20 +91,15 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
   },
   row: {
     paddingVertical: 18,
     paddingHorizontal: 16,
   },
-  rowDark: {
-    backgroundColor: '#111111',
-  },
   rowLabel: {
     fontSize: 17,
     color: '#000000',
-  },
-  rowLabelDark: {
-    color: '#ffffff',
   },
   barFallback: {
     position: 'absolute',
@@ -118,9 +111,18 @@ const styles = StyleSheet.create({
   },
   barContent: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
     paddingHorizontal: 16,
+  },
+  barTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  barIcon: {
+    width: 20,
+    height: 20,
   },
   barTitle: {
     fontSize: 20,
